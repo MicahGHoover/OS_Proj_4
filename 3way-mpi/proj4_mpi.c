@@ -38,14 +38,12 @@ int main() {
     long file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    //equally distribute amount of lines per process (might get funky if not able to cleanly divide)
     lines_per_process = file_size / world_size;
-    //Silly little way for a single line if statement to determine how many lines there are to process
     lines_to_process = (world_rank < file_size % world_size) ? lines_per_process + 1 : lines_per_process;
 
     // Move file pointer to the start of the lines for this process
-    for (int i = 0; i < world_rank; i++) {
-        int lines_to_skip = (i < file_size % world_size) ? lines_per_process + 1 : lines_per_process;
+    if (world_rank != 0) {
+        int lines_to_skip = (world_rank < file_size % world_size) ? lines_per_process + 1 : lines_per_process;
         for (int j = 0; j < lines_to_skip; j++) {
             getline(&line, &line_length, file);
         }
